@@ -1,0 +1,139 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Course{
+	public:
+		string names[100];
+		int i, x, n;
+		Course(){
+			cout << "Enter no. of courses: ";
+			cin >> n;
+			cin.ignore();
+			cout << "Enter names: " << endl;
+			for(i=0;i<n;i++){
+				cout << "Course " << i+1 << ": ";
+				getline(cin, names[i]); 
+			} 
+		}
+};
+
+class Student{
+	public:
+		int i, x, num, students[100];
+		int** marks;
+		string** s_names;
+		Student(Course &obj){
+			num = obj.n;
+			cout << "Enter number of students for each course: " << endl;
+			for(i=0;i<obj.n;i++){
+				cout << obj.names[i] << " : ";
+				cin >> students[i];
+				cin.ignore();
+			}	
+			s_names = new string*[obj.n];
+			for(i=0;i<obj.n;i++){
+				s_names[i] = new string[students[i]];
+				cout << "Student names for " << obj.names[i] << ": " << endl;
+				for(x=0;x<students[i];x++){
+					cout << "Student " << x+1 << " : ";
+					getline(cin, s_names[i][x]);
+				}
+			} 
+		}
+		~Student(){
+			for(i=0;i<num;i++){
+				delete[] s_names[i];
+			}
+			delete[] s_names;
+		}
+		void inputMarks(Course &c){
+			marks = new int*[c.n];
+			for(i=0;i<c.n;i++){
+				marks[i] = new int[students[i]];
+				cout << "Enter marks for " << c.names[i] << " : " << endl;
+				for(x=0;x<students[i];x++){
+					cout << s_names[i][x] << ": ";
+					cin >> marks[i][x];
+					cin.ignore();
+				}
+			}
+		}	
+};
+
+class University{
+	private:
+		int** jArr;
+		int i, x, n;
+	public:
+		University(Course &c, Student &st){
+			n = c.n;
+			jArr = new int*[n];
+			for(i=0;i<n;i++){
+				jArr[i] = new int[st.students[i]];
+			}
+			st.inputMarks(c);
+			for(i=0;i<c.n;i++){
+				for(x=0;x<st.students[i];x++){
+					jArr[i][x] = st.marks[i][x];
+				}
+			}
+		}
+		~University(){
+			for(i=0;i<n;i++){
+				delete[] jArr[i];
+			}
+			delete[] jArr;
+		}
+		void displayMarks(const Course &c, const Student &st){
+			for(i=0;i<n;i++){
+				cout << c.names[i] << ":" << endl;
+				for(x=0;x<st.students[i];x++){
+					cout << st.s_names[i][x] << ": " << st.marks[i][x] << "  |  ";
+				}
+				cout << endl;
+			}
+		}
+		void findHighest(const Course &c, const Student &st){
+			int highest[n];
+			int index[n];
+			for(i=0;i<n;i++){
+				highest[i] = st.marks[i][0];
+				index[i] = 0;
+				for(x=0;x<st.students[i];x++){
+					if(highest[i] < st.marks[i][x]){
+						highest[i] = st.marks[i][x];
+						index[i] = x;
+					}	
+				}
+			}
+			for(i=0;i<n;i++){
+				cout << c.names[i] << " Highest: " << st.s_names[i][index[i]] << ", " << highest[i] << endl; 
+				cout << endl;
+			}			
+		}
+		void findAvg(const Course &c, const Student &st){
+			int avg[n];
+			int sum;
+			for(i=0;i<n;i++){
+				sum = 0;
+				for(x=0;x<st.students[i];x++){
+					sum += st.marks[i][x];
+				}
+				avg[i] = sum/st.students[i];
+			}
+			for(i=0;i<n;i++){
+				cout << c.names[i] << " Average Marks: " << avg[i] << endl;
+			}
+		}
+};
+
+int main(){
+	Course c1;
+	Student s1(c1);
+	University u1(c1, s1);
+	u1.displayMarks(c1, s1);
+	u1.findHighest(c1, s1);
+	u1.findAvg(c1, s1);
+	return 0;
+}
